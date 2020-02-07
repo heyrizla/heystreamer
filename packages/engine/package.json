@@ -1,0 +1,10 @@
+{
+  "name": "@streamr/engine",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "peer-search": "^0.8.1",
+    "range-parser": "^1.2.1"
+  }
+}

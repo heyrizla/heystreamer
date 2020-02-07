@@ -1,0 +1,14 @@
+{
+  "name": "@streamr/server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "dev": "NODE_ENV=staging nodemon src --watch ./ -e js"
+  },
+  "dependencies": {
+    "@koa/router": "^8.0.7",
+    "koa": "^2.11.0",
+    "mime": "^2.4.4"
+  }
+}
