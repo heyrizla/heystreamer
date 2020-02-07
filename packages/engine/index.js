@@ -86,8 +86,8 @@ class Engine extends EventEmitter {
 
         this.timeouts[id] = setTimeout(() => {
           this.emit(`stream-inactive:${id}`);
-          delete counter[id];
-          delete timeouts[id];
+          delete this.counter[id];
+          delete this.timeouts[id];
         }, this.streamTimeout);
       }
 
@@ -100,8 +100,8 @@ class Engine extends EventEmitter {
 
         this.timeouts[hash] = setTimeout(() => {
           this.emit(`stream-inactive:${hash}`);
-          delete counter[id];
-          delete timeouts[id];
+          delete this.counter[id];
+          delete this.timeouts[id];
         }, this.engineTimeout);
       }
     });
@@ -129,8 +129,8 @@ class Engine extends EventEmitter {
 
         this.timeouts[hash] = setTimeout(() => {
           this.emit(`engine-idle:${hash}`);
-          delete counter[id];
-          delete timeouts[id];
+          delete this.counter[id];
+          delete this.timeouts[id];
         }, this.streamTimeout);
       }
     });
