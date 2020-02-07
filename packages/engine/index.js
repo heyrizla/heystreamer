@@ -6,6 +6,31 @@ const path = require('path');
 const PeerSearch = require('peer-search');
 
 const IH_REGEX = new RegExp('([0-9A-Fa-f]){40}', 'g');
+const DEFAULTS = ih => {
+  return {
+    peerSearch: {
+      min: 40,
+      max: 150,
+      sources: [
+        'tracker:udp://tracker.opentrackr.org:1337/announce',
+        'tracker:udp://tracker.coppersurfer.tk:6969/announce',
+        'tracker:udp://tracker.leechers-paradise.org:6969',
+        'tracker:udp://tracker.zer0day.to:1337/announce',
+        'tracker:udp://9.rarbg.me:2710',
+        'dht:' + ih
+      ]
+    },
+    dht: false,
+    tracker: false, // LEGACY ARGS, disable because we use peerSearch
+    connections: 35,
+    handshakeTimeout: 20000,
+    timeout: 4000,
+    virtual: true,
+    swarmCap: { minPeers: 5, maxSpeed: 10 * 1024 * 1024 },
+    growler: { flood: 0, pulse: 2.5 * 1024 * 1024 }
+    //storageMemoryCache: 25*1024*1024, // 25M in-memory cache; WARNING: This has to hold off writing to disk for 25MB, in order to avoid Windows I/O issue encountered in 2014/2015 testing and solved with writeQueue pause/resume
+  };
+};
 
 class Engine extends EventEmitter {
   constructor(opts) {
@@ -52,6 +77,7 @@ class Engine extends EventEmitter {
       if (!this.counter.hasOwnProperty(id)) {
         this.counter[id] = 0;
         this.emit(`stream-active:${id}`);
+        this.emit('stream-active', id);
       }
 
       this.counter[id]++;
@@ -65,6 +91,7 @@ class Engine extends EventEmitter {
       if (!this.counter.hasOwnProperty(hash)) {
         this.counter[hash] = 0;
         this.emit(`stream-active:${hash}`);
+        this.emit('stream-active', hash);
       }
 
       this.counter[hash]++;
@@ -86,6 +113,7 @@ class Engine extends EventEmitter {
 
         this.timeouts[id] = setTimeout(() => {
           this.emit(`stream-inactive:${id}`);
+          this.emit('stream-inactive', id);
           delete this.counter[id];
           delete this.timeouts[id];
         }, this.streamTimeout);
@@ -99,7 +127,8 @@ class Engine extends EventEmitter {
         }
 
         this.timeouts[hash] = setTimeout(() => {
-          this.emit(`stream-inactive:${hash}`);
+          this.emit(`engine-inactive:${hash}`);
+          this.emit('engine-inactive', hash);
           delete this.counter[id];
           delete this.timeouts[id];
         }, this.engineTimeout);
@@ -188,6 +217,8 @@ class Engine extends EventEmitter {
 
           currentEngine.removeListener('download', onDownload);
           currentEngine.removeListener('verify', onDownload);
+
+          // should we transcode?
         };
 
         currentEngine.on('verify', onDownload);
@@ -214,29 +245,7 @@ class Engine extends EventEmitter {
   }
 
   getDefaults(ih) {
-    return {
-      peerSearch: {
-        min: 40,
-        max: 150,
-        sources: [
-          'tracker:udp://tracker.opentrackr.org:1337/announce',
-          'tracker:udp://tracker.coppersurfer.tk:6969/announce',
-          'tracker:udp://tracker.leechers-paradise.org:6969',
-          'tracker:udp://tracker.zer0day.to:1337/announce',
-          'tracker:udp://9.rarbg.me:2710',
-          'dht:' + ih
-        ]
-      },
-      dht: false,
-      tracker: false, // LEGACY ARGS, disable because we use peerSearch
-      connections: 35,
-      handshakeTimeout: 20000,
-      timeout: 4000,
-      virtual: true,
-      swarmCap: { minPeers: 5, maxSpeed: 10 * 1024 * 1024 },
-      growler: { flood: 0, pulse: 2.5 * 1024 * 1024 }
-      //storageMemoryCache: 25*1024*1024, // 25M in-memory cache; WARNING: This has to hold off writing to disk for 25MB, in order to avoid Windows I/O issue encountered in 2014/2015 testing and solved with writeQueue pause/resume
-    };
+    return DEFAULTS(ih);
   }
 
   getEngine(infoHash) {

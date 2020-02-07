@@ -29,7 +29,7 @@ server.use(async (ctx, next) => {
     ctx.set('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     ctx.set(
       'Access-Control-Allow-Headers',
-      req.headers['access-control-request-headers'] || 'Range'
+      ctx.headers['access-control-request-headers'] || 'Range'
     );
     ctx.set('Access-Control-Max-Age', '1728000');
   } else if (ctx.headers.origin) {

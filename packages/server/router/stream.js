@@ -39,6 +39,8 @@ module.exports = async ctx => {
 
     ctx.type = mime.getType(file.name);
 
+    console.log(`File type: ${ctx.type}`);
+
     if (ctx.headers['X-Priority']) {
       opts.priority = parseInt(ctx.headers['X-Priority']) || 1;
     }
