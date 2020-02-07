@@ -29,39 +29,7 @@ class HLS {
     this.convertQueue = asyncQueue((task, cb) => {
       task(cb);
     }, this.parallelConverts);
-
-    this.convertQueue.saturated = () => {
-      console.log(
-        `WARNING: convertQueue saturated with concurrency: ${
-          convertQueue.concurrency
-        } and tasks: ${convertQueue.length()}`
-      );
-    };
   }
-
-  thumbMiddleware = function(req, res) {
-    videoapi.probeVideo(req.params.from, function(err, instance) {
-      if (err) return common.handleErr(err, res);
-
-      var args = [
-        '-ss',
-        !isNaN(req.query.at) ? req.query.at : Math.round(instance.duration / 1000 / 2), // Why the fuck can't we use toSecs? it gets stuck in this case. Maybe could be an issue with transmux too
-        '-i',
-        req.params.from,
-        '-r',
-        '1',
-        '-vframes',
-        '1',
-        '-f',
-        'image2',
-        '-vcodec',
-        'mjpeg',
-        'pipe:1'
-      ];
-
-      common.serveFfmpeg(args, 'image/jpg', res);
-    });
-  };
 
   setParallelConverts(converts) {
     this.convertQueue.concurrency = converts;
